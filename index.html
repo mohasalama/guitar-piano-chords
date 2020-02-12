@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Document</title>
+    
+    <script
+    src="http://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+    
+    <script type="text/javascript">
+        
+        function inRange(x, min, max) {
+            return ((x-min)*(x-max) <= 0);
+        }
+
+        function fretNumber(xPos){
+            // Find fret number
+            var i = 0;
+            var fret = 1;
+            while (! inRange(xPos,i,i+45)){
+                i += 45;
+                fret = (i/45)+1; 
+
+                // catch infinite loop
+                if (i>=700){
+                    break;
+                }
+            }
+            
+            return fret;   
+        }
+
+        function stringNumber(yPos){
+            var strings = [[0,10],[25,42],[55,72],[86,104],[118,135],[149,159]];
+                var string;
+                for (var j = 0;j < strings.length; j++){
+                    
+                    if (inRange(yPos,strings[j][0],strings[j][1])){
+                        
+                        string = j;
+                        
+                        break;
+                    }
+                }
+                // Fix string names so they dont start at 0 
+                string += 1;
+            return string;
+        }
+
+        $(document).ready(function(){
+
+            $("#fretmap").mouseover(function(e){
+                
+                //e.preventDefault();
+                $('.dot').hide();
+
+                // Find position of click 
+                var elm = $('.fretboard');
+                var pad = $(".background").css('padding');
+                var xPos = e.pageX - elm.offset().left;
+                var yPos = e.pageY - elm.offset().top;
+
+                // Current left padding
+                var left = $('.dot').css('left');
+                var top = $('.dot').css('top');
+
+                
+                var pos = 25;
+
+                fret = fretNumber(xPos);
+                
+                string = stringNumber(yPos);
+
+                
+                // Shift ball 'pos' to the right depending on fret
+                pos = (fret*45) -20;
+                // Hardcoded outliers
+
+                if (fret>6){
+                    pos = (fret*45)-25;
+                }
+
+                // shift ball down by 'top' amount depending on string
+                var top;
+                top = ((string-1)*30) + 5;
+
+                // Hardcoded outliers
+                if (string == 5){
+                    top = 128;
+                }
+                if (string == 6){
+                    top = 158;
+                }
+                
+                // 
+                $('area').hover(function(){
+                    $(this).css({'left':pos});
+                    $(this).css({'top':top});  
+                    
+                });
+
+            });
+
+            // Find the note clicked
+            $('#fretmap').click(function(e){
+                e.preventDefault();
+                // Find position of click 
+                var elm = $('.fretboard');
+                var fret;
+                var pad = $(".background").css('padding');
+                var xPos = e.pageX - elm.offset().left;
+                var yPos = e.pageY - elm.offset().top;
+                
+                
+                fret = fretNumber(xPos);   
+                string = stringNumber(yPos);
+                
+                var notes = ['C','C#','D','D#','E','F','F#','G','G#','A','Bb']
+                
+
+                alert(xPos + ' AND'+ yPos + 'You clicked fret' + fret + 'You clicked string' + string);
+            });
+
+            $('.high-e').click(function (e){
+                var elm = $(this);
+                var fret;
+                var pad = $(".background").css('padding');
+                var xPos = e.pageX - elm.offset().left;
+                var yPos = e.pageY - elm.offset().top;
+                
+                xPos = xPos - parseInt(pad);
+                yPos = yPos - parseInt(pad);
+
+                
+
+                alert(xPos + ' AND'+ yPos );
+        });
+
+            $(".high-e").on("click", function(e){
+                e.preventDefault();
+                $(".img2").css({padding: "10px"});
+                
+                $("#one").find(".numberCircle").text("D");
+
+                one.classList.toggle('show');
+            });
+        });
+        
+        
+
+    </script>
+</head>
+<body>
+    <div class="background">
+
+        <img class="fretboard" src="fretboard.png" alt="fretboard" usemap="#fretmap">
+        
+        
+        <map name="fretmap" id ="fretmap">
+            <area class="high-e" 
+            shape="rect"
+            coords="0,10,48,40"
+            >
+            <area
+            shape="rect"
+            coords="0,0,670,10"
+            >
+            <area
+            shape="rect"
+            coords="0,25,670,42"
+            >
+            <area
+            shape="rect"
+            coords="0,0,670,10"
+            >
+            <area
+            shape="rect"
+            coords="0,55,670,72"
+            >
+            <area
+            shape="rect"
+            coords="0,86,670,104"
+            >
+            <area
+            shape="rect"
+            coords="0,118,670,135"
+            >
+            <area
+            shape="rect"
+            coords="0,149,670,159"
+            >
+            
+
+        </map>
+        <span class="dot"></span>
+
+        <div id="one">
+            <div class="numberCircle">G</div>
+            
+
+        </div>
+        
+    </div>
+    
+</body>
+</html>

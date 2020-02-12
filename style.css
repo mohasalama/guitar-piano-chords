@@ -1,0 +1,87 @@
+.background{
+    
+    position: relative;
+    background-repeat: no-repeat;
+    padding: 10px;
+    left: 20px;
+}
+
+.img2 {
+    position: absolute;
+    padding: 10px;
+    top: 15px;
+    left: 10px;
+    height: 30px;
+}
+
+
+.fretboard {
+    width: auto;
+    
+}
+
+area {
+    cursor: pointer;
+}
+
+area:hover{
+    
+    position: absolute;
+    padding: 10;
+    top: 5px;
+    left: 25px;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    display: block;
+    background-color:#1eb285;
+
+}
+
+
+#one {
+    display: none;
+    
+  }
+#one.show {
+    display: block;
+}
+
+.numberCircle {
+    position: absolute;
+    padding: 10px;
+    top: 25px;
+    left: 18px;
+    height: 20px;
+    
+    border-radius: 50%;
+    width: 9px;
+    height: 9px;
+    padding: 9px;
+
+    background: #fff;
+    border: 2px solid #666;
+    color: #666;
+    text-align: center;
+
+    
+    
+
+    font: 15px Arial, sans-serif;
+    line-height: 13px;
+    
+    font-weight: bold;
+}
+
+.dot {
+    cursor: pointer;
+    position: absolute;
+    padding: 10;
+    top: 5px;
+    left: 25px;
+    height: 16px;
+    width: 16px;
+    background-color: #1eb285;
+    border-radius: 50%;
+    display: none;
+  }
