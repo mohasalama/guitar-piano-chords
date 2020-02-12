@@ -47,11 +47,37 @@ area:hover{
     display: block;
 }
 
-.numberCircle {
+.string1{
+    top: -5px;
+    left: -20px;
+}
+.string2{
+    left: -20px;
+    top: 27px;
+}
+.string3{
+    left: -20px;
+    top: 59px;
+}
+.string4{
+    left: -20px;
+    top: 89px;
+}
+.string5{
+    left: -20px;
+    top: 120px;
+}
+.string6{
+    left: -20px;
+    top: 151px;
+}
+
+
+.string1, .string2, .string3, .string4, .string5, .string6{
     position: absolute;
     padding: 10px;
-    top: 25px;
-    left: 18px;
+    
+    
     height: 20px;
     
     border-radius: 50%;
@@ -59,19 +85,17 @@ area:hover{
     height: 9px;
     padding: 9px;
 
-    background: #fff;
+    background: rgb(255, 255, 255);
     border: 2px solid #666;
     color: #666;
     text-align: center;
-
-    
-    
-
     font: 15px Arial, sans-serif;
     line-height: 13px;
     
     font-weight: bold;
 }
+
+
 
 .dot {
     cursor: pointer;
