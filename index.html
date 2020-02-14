@@ -52,9 +52,9 @@
             return string;
         }
 
+        
         $(document).ready(function(){
             one.classList.toggle('show');
-            //$("#one").find(".numberCircle").text("D");
 
             $("#fretmap").mouseover(function(e){
                 
@@ -108,6 +108,7 @@
 
             });
 
+            
             // Find the note clicked
             $('#fretmap').click(function(e){
                 e.preventDefault();
@@ -121,53 +122,132 @@
                 
                 fret = fretNumber(xPos);   
                 string = stringNumber(yPos);
-                
-                var notes = ['C','C#','D','D#','E','F','F#','G','G#','A','Bb']
-                
 
-                alert(xPos + ' AND'+ yPos + 'You clicked fret' + fret + 'You clicked string' + string);
+                moveNote(string,fret);
+                
+                //console.log('click found');
+
             });
 
-            $('.high-e').click(function (e){
-                var elm = $(this);
-                var fret;
-                var pad = $(".background").css('padding');
-                var xPos = e.pageX - elm.offset().left;
-                var yPos = e.pageY - elm.offset().top;
-                
-                xPos = xPos - parseInt(pad);
-                yPos = yPos - parseInt(pad);
 
-                
 
-                alert(xPos + ' AND'+ yPos );
+           
         });
+            var notes = ['C','C#','D','D#','E','F','F#','G','G#','A','Bb','B']
+            var openstrings = ['E','B','G','D','A','E'];
+            var fretPos = [18,63,107,150,195,240,283,330,372,418,462,507,551,595,640];
+            var notesPlayed = [['E',4],['B',3],['G',3],['D',3],['A',2],['E',2]];
 
-            $(".high-e").on("click", function(e){
-                e.preventDefault();
-                $(".img2").css({padding: "10px"});
+            // Return the note name value
+            function note(open,fret){
+                //console.log(open+fret)
+                if (open + fret >= 12){   
+                    if (open+fret>=24){
+                        return notes[open+fret-24]
+                    }
+                    return notes[open + fret - 12];
+                }
+                else{
+                    return notes[open+fret];
+                }
+            }
+            // Update the note octaves
+            function update(string,fret){
+                let orig_octaves = [4,3,3,3,2,2];
+                let octave;
+                if (string==1){
+                    if (inRange(fret,1,7)) octave = 4;
+                    else octave = 5;
+                }
+                if (string==2){
+                    if (inRange(fret,1,12)) octave = 4;
+                    else octave = 5;
+                }
+                if (string==3){
+                    if (inRange(fret,1,4)) octave = 3;
+                    else octave = 4;
+                }
+                if (string==4){
+                    if (inRange(fret,1,9)) octave = 3;
+                    else octave = 4;
+                }
+                if (string==5){
+                    if (inRange(fret,1,2)) octave = 2;
+                    else if (inRange(fret,3,14)) octave = 3;
+                    else octave = 4;
+                }
+                if (string==6){
+                    if (inRange(fret,1,7)) octave = 2;
+                    else octave = 3;
+                }
+                if (fret==0){
+                    console.log('octave='+octave)
+                    octave = orig_octaves[string-1];
+                }
+                notesPlayed[string-1][1] = octave;
+                console.log('NOTE=' + notesPlayed[string-1][0]+notesPlayed[string-1][1]);
+            }
+            // main function to move the notes and update their octave
+            function moveNote(stringnum,fret){
+                var stringName = '.string' + stringnum;
+                pos = fretPos[fret-1]
+
+                // If an notes are clicked
+                if (fret==0){
+                    noteName = openstrings[stringnum-1];
+                    $(stringName).css({"left":-20});
+                    $(stringName).text(noteName)
+                }
+                // If any other note is clicked 
+                else{
+                    open = notes.indexOf(openstrings[stringnum-1])
+                    noteName = note(open,fret);
+                    
+                    $(stringName).text(noteName);
+                    $(stringName).css({"left":pos});
+                }
+                notesPlayed[stringnum-1][0] = noteName; // Update the notenames
+                update(stringnum,fret);
+                console.log(notesPlayed);
+
+                let noteToPlay = notesPlayed[stringnum-1][0] + notesPlayed[stringnum-1][1]
+                console.log(noteToPlay)
+
+                $("#myAudio").attr("src","/notes/"+ noteToPlay+'.mp3');
                 
-                $("#one").find(".numberCircle").text("D");
+                console.log('notes/'+ noteToPlay+'.mp3')
 
-                one.classList.toggle('show');
-            });
-        });
+                var x = document.getElementById("myAudio"); 
+                
+                console.log('source is' +x.src);
+                x.play()
+                //play note
+                //console.log('moveNote called string:'+stringnum + ' fret:'+ fret)
+            }
         
         
 
     </script>
 </head>
 <body>
+    <audio id="myAudio">
+        <source src="" type="audio/mp3">
+    </audio>
+    <div id="buttons">
+        <button class="open1" onclick="moveNote('1','0')"></button>
+        <button class="open2" onclick="moveNote('2','0')"></button>
+        <button class="open3" onclick="moveNote('3','0')"></button>
+        <button class="open4" onclick="moveNote('4','0')"></button>
+        <button class="open5" onclick="moveNote('5','0')"></button>
+        <button class="open6" onclick="moveNote('6','0')"></button>
+    </div>
     <div class="background">
 
         <img class="fretboard" src="fretboard.png" alt="fretboard" usemap="#fretmap">
         
         
         <map name="fretmap" id ="fretmap">
-            <area class="high-e" 
-            shape="rect"
-            coords="0,10,48,40"
-            >
+  
             <area
             shape="rect"
             coords="0,0,670,10"
@@ -205,10 +285,10 @@
 
         <div id="one">
             <div class="string1">E</div>
-            <div class="string2">A</div>
-            <div class="string3">D</div>
-            <div class="string4">G</div>
-            <div class="string5">B</div>
+            <div class="string2">B</div>
+            <div class="string3">G</div>
+            <div class="string4">D</div>
+            <div class="string5">A</div>
             <div class="string6">E</div>
         </div>
         
