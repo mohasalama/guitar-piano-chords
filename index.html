@@ -12,6 +12,7 @@
     crossorigin="anonymous"></script>
 
     
+    
     <script type="text/javascript">
         
         function inRange(x, min, max) {
@@ -51,10 +52,16 @@
                 string += 1;
             return string;
         }
-
+        
+        function say_stuff(){
+            var data = jQuery.getJSON("/notes/guitar.json");
+            console.log(data);
+        }
         
         $(document).ready(function(){
             one.classList.toggle('show');
+
+            say_stuff();
 
             $("#fretmap").mouseover(function(e){
                 
@@ -129,14 +136,13 @@
 
             });
 
-
-
            
         });
             var notes = ['C','C#','D','D#','E','F','F#','G','G#','A','Bb','B']
             var openstrings = ['E','B','G','D','A','E'];
             var fretPos = [18,63,107,150,195,240,283,330,372,418,462,507,551,595,640];
             var notesPlayed = [['E',4],['B',3],['G',3],['D',3],['A',2],['E',2]];
+            var chordNotation;
 
             // Return the note name value
             function note(open,fret){
@@ -190,39 +196,62 @@
             // main function to move the notes and update their octave
             function moveNote(stringnum,fret){
                 var stringName = '.string' + stringnum;
+                var openString = '.open' + stringnum;
                 pos = fretPos[fret-1]
+                xName = '.x' + stringnum;
 
-                // If an notes are clicked
-                if (fret==0){
-                    noteName = openstrings[stringnum-1];
-                    $(stringName).css({"left":-20});
-                    $(stringName).text(noteName)
-                }
-                // If any other note is clicked 
-                else{
-                    open = notes.indexOf(openstrings[stringnum-1])
-                    noteName = note(open,fret);
+                if (fret==-1){
+                    $(stringName).hide();
                     
-                    $(stringName).text(noteName);
-                    $(stringName).css({"left":pos});
+                    console.log('show it');
+                    $(xName).show();
+                    //$('.mute1').toggle('activ');
+                    console.log('string clicked:'+stringnum);
+                    notesPlayed[stringnum-1][0] = ""; // note is muted
+
+                    console.log(notesPlayed);
                 }
-                notesPlayed[stringnum-1][0] = noteName; // Update the notenames
-                update(stringnum,fret);
-                console.log(notesPlayed);
+                else{
+                    
+                    $(stringName).show();
+                    $(xName).hide();
+                    // If an notes are clicked
+                    if (fret==0){
+                        noteName = openstrings[stringnum-1];
+                        $(stringName).css({"left":-20});
+                        $(stringName).text(noteName)
+                    }
+                    // If any other note is clicked 
+                    else{
+                        open = notes.indexOf(openstrings[stringnum-1])
+                        noteName = note(open,fret);
+                        
+                        $(stringName).text(noteName);
+                        $(stringName).css({"left":pos});
+                    }
 
-                let noteToPlay = notesPlayed[stringnum-1][0] + notesPlayed[stringnum-1][1]
-                console.log(noteToPlay)
+                    notesPlayed[stringnum-1][0] = noteName; // Update the note names
+                    update(stringnum,fret); // Update note octave
 
-                $("#myAudio").attr("src","/notes/"+ noteToPlay+'.mp3');
-                
-                console.log('notes/'+ noteToPlay+'.mp3')
+                    var finalNote = notesPlayed[stringnum-1][0];
 
-                var x = document.getElementById("myAudio"); 
-                
-                console.log('source is' +x.src);
-                x.play()
-                //play note
-                //console.log('moveNote called string:'+stringnum + ' fret:'+ fret)
+                    // Switch # to s for audio finding
+                    if (finalNote[1]=="#"){
+                        finalNote = finalNote[0] + 's' 
+                    }
+                    // Switch Bb to As
+                    if (finalNote=="Bb"){
+                        finalNote = "As";
+                    }
+
+                    // Play the audio 
+                    let noteToPlay = finalNote + notesPlayed[stringnum-1][1]
+                    $("#myAudio").attr("src","/notes/"+ noteToPlay+'.mp3');
+                    var x = document.getElementById("myAudio"); 
+                    x.play()
+                    console.log(notesPlayed);
+                }
+
             }
         
         
@@ -233,6 +262,8 @@
     <audio id="myAudio">
         <source src="" type="audio/mp3">
     </audio>
+
+    
     <div id="buttons">
         <button class="open1" onclick="moveNote('1','0')"></button>
         <button class="open2" onclick="moveNote('2','0')"></button>
@@ -241,7 +272,27 @@
         <button class="open5" onclick="moveNote('5','0')"></button>
         <button class="open6" onclick="moveNote('6','0')"></button>
     </div>
+    
     <div class="background">
+        <div id="mutes">
+            <button class="mute mute1" onclick="moveNote('1','-1')">X</button>
+            <button class="mute mute2" onclick="moveNote('2','-1')">X</button>
+            <button class="mute mute3" onclick="moveNote('3','-1')">X</button>
+            <button class="mute mute4" onclick="moveNote('4','-1')">X</button>
+            <button class="mute mute5" onclick="moveNote('5','-1')">X</button>
+            <button class="mute mute6" onclick="moveNote('6','-1')">X</button>
+
+        </div>
+
+        <span class="popuptext x1" id="myPopup">X</span>
+        <span class="popuptext x2" id="myPopup">X</span>
+        <span class="popuptext x3" id="myPopup">X</span>
+        <span class="popuptext x4" id="myPopup">X</span>
+        <span class="popuptext x5" id="myPopup">X</span>
+        <span class="popuptext x6" id="myPopup">X</span>
+
+
+
 
         <img class="fretboard" src="fretboard.png" alt="fretboard" usemap="#fretmap">
         
@@ -250,31 +301,31 @@
   
             <area
             shape="rect"
-            coords="0,0,670,10"
+            coords="15,0,670,10"
             >
             <area
             shape="rect"
-            coords="0,25,670,42"
+            coords="15,25,670,42"
             >
             <area
             shape="rect"
-            coords="0,0,670,10"
+            coords="15,0,670,10"
             >
             <area
             shape="rect"
-            coords="0,55,670,72"
+            coords="15,55,670,72"
             >
             <area
             shape="rect"
-            coords="0,86,670,104"
+            coords="15,86,670,104"
             >
             <area
             shape="rect"
-            coords="0,118,670,135"
+            coords="15,118,670,135"
             >
             <area
             shape="rect"
-            coords="0,149,670,159"
+            coords="15,149,670,159"
             >
             
 
