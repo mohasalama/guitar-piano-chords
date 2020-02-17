@@ -53,9 +53,34 @@
             return string;
         }
         
-        function say_stuff(){
-            var data = jQuery.getJSON("/notes/guitar.json");
-            console.log(data);
+        function say_stuff(input_chord){
+            
+            $.getJSON("/notes/data.json", function(data) {
+
+                //console.log(data["chords"]["C"][0]["positions"]);
+
+                //for (var chord in data["chords"]){
+                //    console.log(chord);
+                //}
+                
+                for (var chord in data){
+
+                    console.log("Chord name: " + chord);
+                    data[chord].forEach(function (item) {
+                        console.log(item);
+                    });
+                    // for (var ways in data[chord]){
+                    //     console.log(ways);
+                    // }
+                    //console.log(chord);
+                }
+
+                });
+
+            //var data = jQuery.getJSON("/notes/guitar.json");
+            //var json = JSON.parse(data);
+
+           
         }
         
         $(document).ready(function(){
@@ -142,7 +167,7 @@
             var openstrings = ['E','B','G','D','A','E'];
             var fretPos = [18,63,107,150,195,240,283,330,372,418,462,507,551,595,640];
             var notesPlayed = [['E',4],['B',3],['G',3],['D',3],['A',2],['E',2]];
-            var chordNotation;
+            var chord = [0,0,0,0,0,0];
 
             // Return the note name value
             function note(open,fret){
@@ -195,10 +220,12 @@
             }
             // main function to move the notes and update their octave
             function moveNote(stringnum,fret){
+                console.log('---------DETECTED------------');
                 var stringName = '.string' + stringnum;
                 var openString = '.open' + stringnum;
                 pos = fretPos[fret-1]
                 xName = '.x' + stringnum;
+                chord[stringnum-1] = parseInt(fret);
 
                 if (fret==-1){
                     $(stringName).hide();
@@ -209,7 +236,7 @@
                     console.log('string clicked:'+stringnum);
                     notesPlayed[stringnum-1][0] = ""; // note is muted
 
-                    console.log(notesPlayed);
+                    //console.log(notesPlayed);
                 }
                 else{
                     
@@ -251,6 +278,10 @@
                     x.play()
                     console.log(notesPlayed);
                 }
+
+                // Reverse the chord without mutating
+                var new_chord = chord.slice().reverse();
+                console.log(new_chord);
 
             }
         
