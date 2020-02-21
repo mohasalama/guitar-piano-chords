@@ -34,6 +34,7 @@
             }
             
             return fret;   
+
         }
 
         function stringNumber(yPos){
@@ -52,6 +53,23 @@
                 string += 1;
             return string;
         }
+
+        function chordify(items){
+            var opens = openstrings.slice().reverse();
+            var chord = [];
+            for (var i = 0; i < 6; i++) {
+                if (items[i]!=-1){
+                    open = notes.indexOf(opens[i]);
+                    
+                    chord += note(open,items[i]);
+                }
+                
+                //Do something
+            }
+            return chord;
+            //console.log("================"+ chord);
+        }
+        //console.log(chordify([1,1,1,1,1,1]));
         
         function say_stuff(input_chord){
             
@@ -62,20 +80,99 @@
                 //for (var chord in data["chords"]){
                 //    console.log(chord);
                 //}
+                let notes = [notesPlayed[0][0],notesPlayed[1][0],notesPlayed[2][0],notesPlayed[3][0],notesPlayed[4][0],notesPlayed[5][0]];
+                let filter_note = [];
                 
+                // Remove "" from list of notes 
+                notes.forEach(function (item) {
+                    if (item!=""){
+                        filter_note += item;
+                    }
+                });
+
+                // Convert input notes to set (remove duplicates )
+                let input_set = new Set(filter_note);
+
+
+                //console.log('comparing:' + input_set);
+                                // Create function to check if an element is in a specified set.
+                function isIn(s)          { return elt => s.has(elt); }
+
+                // Check if one set contains another (all members of s2 are in s1).
+                function contains(s1, s2) { return [...s2] . every(isIn(s1)); }
+
+                // Set equality: a contains b, and b contains a
+                function eqSet(a, b)      { return contains(a, b) && contains(b, a); }
+
+                //console.log(eqSet(input_set, new Set(['E','G','C'])));
+
+
+
+                var matched = [];
                 for (var chord in data){
 
-                    console.log("Chord name: " + chord);
+                    
+                    //console.log("Chord name: " + chord);
                     data[chord].forEach(function (item) {
-                        console.log(item);
+                        
+                        
+                        // Compare input_chord to all chords
+                        match = JSON.stringify(input_chord) == JSON.stringify(item);
+                        //console.log("compare to: " + note);
+                        //console.log("THROWING IN: "+ item);
+                        //chordify(item);
+
+                        var check_set = new Set (chordify(item));
+                        //console.log("CHECK SET" + check_set);
+
+                        match_set = eqSet(input_set,check_set);
+
+                        // if (chord=="Cmajor"){
+                        //     console.log("input_set" + Array.from(input_set));
+                        //     console.log("other_set " + Array.from(check_set));
+                        //     console.log("========" + item + "is form of C major");
+                        //     if (match_set){
+                        //         console.log("matched with C ");
+                        //     }
+                        // }
+
+                        // if (chord=="Cmajor"){
+                        //     console.log("My name is:" + chord + "and I am "+ item);
+                        //     console.log("My notes are" + chordify(item));
+                        // }
+
+                        if (match){
+                            console.log("-------NORMAL MATCH--------");
+                            
+                            console.log("======================================");
+                            console.log("Matched: "+ chord );
+                            matched += chord;
+                        }
+                        if (match_set){
+                            console.log("-------SET MATCH--------");
+                            console.log("CHORD FOUND: " + Array.from(input_set));
+                            console.log("COMPARED TO:  " + Array.from(check_set));
+                            console.log("^ has "+ item + "NAME: " + chord);
+                            if (! chord in matched){
+                                matched += chord;   
+                            }
+                            
+                        }
+
+                        
+                        //console.log(item);
                     });
                     // for (var ways in data[chord]){
                     //     console.log(ways);
                     // }
                     //console.log(chord);
                 }
-
+                
+                console.log('Total:' + matched);
                 });
+            //var data = jQuery.getJSON("/notes/guitar.json")
+            //var d
+        
 
             //var data = jQuery.getJSON("/notes/guitar.json");
             //var json = JSON.parse(data);
@@ -86,7 +183,6 @@
         $(document).ready(function(){
             one.classList.toggle('show');
 
-            say_stuff();
 
             $("#fretmap").mouseover(function(e){
                 
@@ -168,6 +264,7 @@
             var fretPos = [18,63,107,150,195,240,283,330,372,418,462,507,551,595,640];
             var notesPlayed = [['E',4],['B',3],['G',3],['D',3],['A',2],['E',2]];
             var chord = [0,0,0,0,0,0];
+            var notePaths = ["/notes/E4.mp3","/notes/B3.mp3","/notes/G3.mp3","/notes/D3.mp3","/notes/A2.mp3","/notes/E2.mp3"];
 
             // Return the note name value
             function note(open,fret){
@@ -235,7 +332,7 @@
                     //$('.mute1').toggle('activ');
                     console.log('string clicked:'+stringnum);
                     notesPlayed[stringnum-1][0] = ""; // note is muted
-
+                    notePaths[stringnum-1] = "";
                     //console.log(notesPlayed);
                 }
                 else{
@@ -273,7 +370,9 @@
 
                     // Play the audio 
                     let noteToPlay = finalNote + notesPlayed[stringnum-1][1]
-                    $("#myAudio").attr("src","/notes/"+ noteToPlay+'.mp3');
+                    var notePath = "/notes/" + noteToPlay + '.mp3'
+                    notePaths[stringnum-1] = notePath;
+                    $("#myAudio").attr("src",notePath);
                     var x = document.getElementById("myAudio"); 
                     x.play()
                     console.log(notesPlayed);
@@ -281,12 +380,63 @@
 
                 // Reverse the chord without mutating
                 var new_chord = chord.slice().reverse();
-                console.log(new_chord);
+                console.log("NEW CHORD:" + new_chord);
+                say_stuff(new_chord);
+                
 
             }
-        
-        
+            function playChord(){
+                console.log(notePaths);
 
+                var snd0  = new Audio();
+                var src0  = document.createElement("source");
+                src0.type = "audio/mpeg";
+                src0.src  = notePaths[0];
+                snd0.appendChild(src0);
+
+                var snd1  = new Audio();
+                var src1  = document.createElement("source");
+                src1.type = "audio/mpeg";
+                src1.src  = notePaths[1];
+                snd1.appendChild(src1);
+
+                var snd2  = new Audio();
+                var src2  = document.createElement("source");
+                src2.type = "audio/mpeg";
+                src2.src  = notePaths[2];
+                snd2.appendChild(src2);
+
+                var snd3  = new Audio();
+                var src3  = document.createElement("source");
+                src3.type = "audio/mpeg";
+                src3.src  = notePaths[3];
+                snd3.appendChild(src3);
+
+                var snd4  = new Audio();
+                var src4  = document.createElement("source");
+                src4.type = "audio/mpeg";
+                src4.src  = notePaths[4];
+                snd4.appendChild(src4);
+
+                var snd5  = new Audio();
+                var src5  = document.createElement("source");
+                src5.type = "audio/mpeg";
+                src5.src  = notePaths[5];
+                snd5.appendChild(src5);
+
+
+                function start1() {snd1.play();}
+                function start2() {snd2.play();}
+                function start3() {snd3.play();}
+                function start4() {snd4.play();}
+                function start0() {snd0.play();}
+                
+                var timeGap = 200;
+                
+                snd5.play();setTimeout(start4, timeGap);setTimeout(start3, timeGap+50);setTimeout(start2, timeGap+100);
+                setTimeout(start1, timeGap+150);setTimeout(start0, timeGap+200);
+            }
+        
     </script>
 </head>
 <body>
@@ -294,6 +444,7 @@
         <source src="" type="audio/mp3">
     </audio>
 
+    <button class="play" onclick="playChord()">PLAY </button>
     
     <div id="buttons">
         <button class="open1" onclick="moveNote('1','0')"></button>
